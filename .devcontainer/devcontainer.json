@@ -1,0 +1,22 @@
+{
+	"name": "Ubuntu",
+	"image": "mcr.microsoft.com/devcontainers/base:noble",
+	"features": {
+		"ghcr.io/devcontainers/features/aws-cli:1": {},
+		"ghcr.io/devcontainers/features/git-lfs:1": {},
+		"ghcr.io/devcontainers/features/terraform:1": {
+     		 "version": "latest"
+    	}
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"AmazonWebServices.aws-toolkit-vscode",
+				"redhat.vscode-yaml",
+				"HashiCorp.terraform",
+				"4ops.terraform",
+				"GitHub.copilot"
+			]
+		}
+	}
+}
