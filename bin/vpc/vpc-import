@@ -1,0 +1,3 @@
+#! /usr/bin/bash
+
+terraform import module.vpc.aws_vpc.this vpc-"xxx-id-xxx"
