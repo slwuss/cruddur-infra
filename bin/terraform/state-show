@@ -1,0 +1,5 @@
+#! /usr/bin/bash
+
+terraform state show *******
+
+terraform state pull > state.json

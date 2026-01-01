@@ -1,19 +1,19 @@
 variable "name" {
-  type = string
+  type        = string
+  description = "VPC name prefix"
 }
 
 variable "cidr_block" {
-  type = string
+  type        = string
+  description = "VPC CIDR block"
 }
 
 variable "azs" {
-  type = list(string)
+  type        = list(string)
+  description = "Availability Zones"
 }
 
 variable "public_subnets" {
-  type = list(string)
-}
-
-variable "private_subnets" {
-  type = list(string)
+  type        = list(string)
+  description = "Public subnet CIDRs"
 }
