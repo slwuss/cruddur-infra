@@ -1,0 +1,35 @@
+variable "function_name" {
+  type = string
+}
+
+variable "role_arn" {
+  type = string
+}
+
+variable "handler" {
+  type = string
+}
+
+variable "runtime" {
+  type = string
+}
+
+variable "timeout" {
+  type = number
+}
+
+variable "memory_size" {
+  type = number
+}
+
+variable "subnet_ids" {
+  type = list(string)
+}
+
+variable "security_group_ids" {
+  type = list(string)
+}
+
+variable "environment_variables" {
+  type = map(string)
+}
