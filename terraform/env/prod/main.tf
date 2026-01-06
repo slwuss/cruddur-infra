@@ -50,27 +50,55 @@ module "cognito_user_pool" {
   post_confirmation_arn = "arn:aws:lambda:ap-southeast-2:739623014075:function:cruddur"
 }
 
-module "lambda_cognito" {
-  source = "../../modules/lambda"
+# module "lambda_cognito" {
+#   source = "../../modules/lambda"
 
-  function_name = "cognito-user_pool_id_post_confirmation"
-  role_arn      = "arn:aws:iam::739623014075:role/service-role/cruddur-role-ie9zkox4"
+#   function_name = "cognito-user_pool_id_post_confirmation"
+#   role_arn      = "arn:aws:iam::739623014075:role/service-role/cruddur-role-ie9zkox4"
 
-  handler = "lambda_function.lambda_handler"
-  runtime = "python3.12"
+#   handler = "lambda_function.lambda_handler"
+#   runtime = "python3.12"
 
-  timeout     = 60
-  memory_size = 128
+#   timeout     = 60
+#   memory_size = 128
 
-  subnet_ids = [
-    module.vpc.public_subnet_ids
+#   subnet_ids = [
+#     module.vpc.public_subnet_ids
+#   ]
+
+#   security_group_ids = [
+#     "sg-0a2f601a6a3c2a2b2",
+#   ]
+
+#   environment_variables = {
+#     CONNECTION_URL = "postgresql://root:Seenlawat19@cruddur-db-instance.c98k62ueon7e.ap-southeast-2.rds.amazonaws.com:5432/cruddur"
+#   }
+# }
+
+module "security_groups" {
+  source = "../../modules/security-groups"
+
+  vpc_id = module.vpc.vpc_id
+}
+
+module "postgres" {
+  source = "../../modules/postgres"
+
+  identifier            = "cruddur-db-instance-prod"
+  engine_version        = "17.6"
+  instance_class        = "db.t4g.micro"
+  allocated_storage     = 20
+  db_name               = "cruddur"
+
+  publicly_accessible   = true
+  vpc_security_group_ids = [
+    module.security_groups.rds_sg_id
   ]
+  db_subnet_group_name = "default"
 
-  security_group_ids = [
-    "sg-0a2f601a6a3c2a2b2",
-  ]
+  maintenance_window      = "wed:13:49-wed:14:19"
+  backup_retention_period = 0
 
-  environment_variables = {
-    CONNECTION_URL = "postgresql://root:Seenlawat19@cruddur-db-instance.c98k62ueon7e.ap-southeast-2.rds.amazonaws.com:5432/cruddur"
-  }
+  parameter_group_name = "default.postgres17"
+  option_group_name    = "default:postgres-17"
 }
