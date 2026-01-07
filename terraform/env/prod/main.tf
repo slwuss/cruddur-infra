@@ -44,36 +44,40 @@ module "cognito_user_pool" {
 
   name                  = "User pool - Cruddur Prod"
   domain                = "cruddur-prod-auth"
-  deletion_protection   = "ACTIVE"
+  deletion_protection   = "INACTIVE"
   mfa_configuration     = "OFF"
 
-  post_confirmation_arn = "arn:aws:lambda:ap-southeast-2:739623014075:function:cruddur"
+  post_confirmation_arn = module.lambda_user_writer.lambda_arn
 }
 
-# module "lambda_cognito" {
-#   source = "../../modules/lambda"
+module "lambda_user_writer" {
+  source = "../../modules/lambda/user-writer"
 
-#   function_name = "cognito-user_pool_id_post_confirmation"
-#   role_arn      = "arn:aws:iam::739623014075:role/service-role/cruddur-role-ie9zkox4"
+  function_name = "cruddur-user-writer"
+  role_arn      = module.iam_lambda_user_writer.lambda_user_writer_role_arn
 
-#   handler = "lambda_function.lambda_handler"
-#   runtime = "python3.12"
+  handler = "lambda_function.lambda_handler"
+  runtime = "python3.12"
 
-#   timeout     = 60
-#   memory_size = 128
+  s3_bucket = "cruddur-lambda-artifacts-prod"
+  s3_key    = "user-writer/v1.0.0.zip"
+  
+  timeout     = 60
+  memory_size = 128
 
-#   subnet_ids = [
-#     module.vpc.public_subnet_ids
-#   ]
+  subnet_ids = module.vpc.public_subnet_ids
 
-#   security_group_ids = [
-#     "sg-0a2f601a6a3c2a2b2",
-#   ]
+  security_group_ids = [
+    module.security_groups.lambda_user_sg_id
+  ]
+  environment_variables = {
+    DB_HOST             = module.postgres.endpoint
+    DB_PORT             = "5432"
+    DB_NAME             = "cruddur"
+    POSTGRES_SECRET_ARN = module.postgres.master_user_secret_arn
+  }
 
-#   environment_variables = {
-#     CONNECTION_URL = "postgresql://root:Seenlawat19@cruddur-db-instance.c98k62ueon7e.ap-southeast-2.rds.amazonaws.com:5432/cruddur"
-#   }
-# }
+}
 
 module "security_groups" {
   source = "../../modules/security-groups"
@@ -101,4 +105,15 @@ module "postgres" {
 
   parameter_group_name = "default.postgres17"
   option_group_name    = "default:postgres-17"
+}
+
+module "iam_lambda_user_writer" {
+  source = "../../modules/iam/lambda-user-writer"
+
+  role_name = "cruddur-user-writer-lambda-role"
+  lambda_name = "cruddur-user-writer"
+  region = "ap-southeast-2"
+
+  postgres_secret_arn  = module.postgres.master_user_secret_arn
+
 }

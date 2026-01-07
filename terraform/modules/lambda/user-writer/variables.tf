@@ -33,3 +33,13 @@ variable "security_group_ids" {
 variable "environment_variables" {
   type = map(string)
 }
+
+variable "s3_bucket" {
+  type = string
+  description = "S3 bucket containing lambda artifact"
+}
+
+variable "s3_key" {
+  type = string
+  description = "S3 key (path) to lambda zip file"
+}
