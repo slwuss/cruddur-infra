@@ -97,8 +97,9 @@ module "postgres" {
   publicly_accessible   = true
   vpc_security_group_ids = [
     module.security_groups.rds_sg_id
-  ]
-  db_subnet_group_name = "default"
+    ]
+
+  subnet_ids = module.vpc.public_subnet_ids
 
   maintenance_window      = "wed:13:49-wed:14:19"
   backup_retention_period = 0

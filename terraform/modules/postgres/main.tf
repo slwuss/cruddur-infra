@@ -13,7 +13,7 @@ resource "aws_db_instance" "this" {
 
   publicly_accessible    = var.publicly_accessible
   vpc_security_group_ids = var.vpc_security_group_ids
-  db_subnet_group_name   = var.db_subnet_group_name
+  db_subnet_group_name   = aws_db_subnet_group.this.name
 
   storage_encrypted = true
 
@@ -33,3 +33,4 @@ resource "aws_db_instance" "this" {
   username                    = var.username
   manage_master_user_password = true
 }
+
