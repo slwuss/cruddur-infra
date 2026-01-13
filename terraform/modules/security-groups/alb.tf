@@ -6,6 +6,7 @@ resource "aws_security_group" "alb" {
 
 resource "aws_security_group_rule" "alb_http" {
   type = "ingress"
+  description = "Allow HTTP from internet"
   from_port = 80
   to_port = 80
   protocol = "tcp"
@@ -15,6 +16,7 @@ resource "aws_security_group_rule" "alb_http" {
 
 resource "aws_security_group_rule" "alb_https" {
   type = "ingress"
+  description = "Allow HTTPS from internet"
   from_port = 443
   to_port = 443
   protocol = "tcp"

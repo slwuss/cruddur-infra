@@ -16,6 +16,10 @@ module "vpc" {
 
   region = "ap-southeast-2"
 
+  security_group_ids = [
+    module.security_groups.secrets_endpoint_sg_id
+    ]
+
 }
 
 module "messages_table" {
@@ -71,7 +75,7 @@ module "lambda_user_writer" {
     module.security_groups.lambda_user_sg_id
   ]
   environment_variables = {
-    DB_HOST             = module.postgres.endpoint
+    DB_HOST             = module.postgres.address
     DB_PORT             = "5432"
     DB_NAME             = "cruddur"
     POSTGRES_SECRET_ARN = module.postgres.master_user_secret_arn

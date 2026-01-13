@@ -6,6 +6,7 @@ resource "aws_security_group" "fe" {
 
 resource "aws_security_group_rule" "fe_from_alb" {
   type                     = "ingress"
+  description              = "Allow ALB to access ECS Frontend"
   from_port                = 3000
   to_port                  = 3000
   protocol                 = "tcp"

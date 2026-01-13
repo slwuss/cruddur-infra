@@ -6,6 +6,7 @@ resource "aws_security_group" "be" {
 
 resource "aws_security_group_rule" "be_from_fe" {
   type                     = "ingress"
+  description              = "Allow ECS Frontend to access ECS Backend"
   from_port                = 4567
   to_port                  = 4567
   protocol                 = "tcp"

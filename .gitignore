@@ -24,3 +24,5 @@ crash.log
 node_modules/
 dist/
 build/
+
+.venv/

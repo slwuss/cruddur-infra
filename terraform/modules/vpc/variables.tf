@@ -21,3 +21,7 @@ variable "public_subnets" {
 variable "region" {
   type = string
 }
+
+variable "security_group_ids" {
+  type = list(string)
+}
