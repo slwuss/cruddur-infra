@@ -122,3 +122,49 @@ module "iam_lambda_user_writer" {
   postgres_secret_arn  = module.postgres.master_user_secret_arn
 
 }
+
+module "acm" {
+  source = "../../modules/acm"
+
+  domain_name = "project-cruddur.com"
+  subject_alternative_names = [
+    "*.project-cruddur.com",
+    "project-cruddur.com",
+  ]
+  certificate_transparency_logging = "ENABLED"
+
+}
+
+module "route53" {
+  source = "../../modules/route53"
+
+  name = "project-cruddur.com"
+
+  alb_dns_name = module.alb.dns_name
+  alb_zone_id = module.alb.zone_id
+  
+}
+
+module "alb" {
+  source = "../../modules/alb"
+
+  name            = "cruddur-alb-prod"
+  vpc_id          = module.vpc.vpc_id
+  subnets         = module.vpc.public_subnet_ids
+  security_groups = [module.security_groups.alb_sg_id]
+
+  access_logs = {
+    enabled = true
+    bucket  = module.alb_log_bucket.alb_log_bucket_name
+    prefix  = null
+  }
+}
+
+data "aws_caller_identity" "current" {}
+
+module "alb_log_bucket" {
+  source = "../../modules/s3/alb_log_bucket"
+
+  bucket_name = "cruddur-alb-access-log"
+  alb_account_id = data.aws_caller_identity.current.account_id
+}
