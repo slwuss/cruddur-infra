@@ -21,3 +21,16 @@ variable "access_logs" {
     prefix  = string
   })
 }
+
+variable "certificate_arn" {
+  type        = string
+  description = "ACM certificate ARN for HTTPS listener"
+}
+
+variable "frontend_target_group_arn" {
+  type        = string
+}
+
+variable "backend_target_group_arn" {
+  type        = string
+}

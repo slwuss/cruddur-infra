@@ -112,6 +112,12 @@ module "postgres" {
   option_group_name    = "default:postgres-17"
 }
 
+module "iam_ecs" {
+  source = "../../modules/iam/ecs"
+  execution_role_name = "CruddurTaskExecutionRole"
+  task_role_name = "CruddurTaskRole"
+}
+
 module "iam_lambda_user_writer" {
   source = "../../modules/iam/lambda-user-writer"
 
@@ -158,6 +164,11 @@ module "alb" {
     bucket  = module.alb_log_bucket.alb_log_bucket_name
     prefix  = null
   }
+
+  certificate_arn = module.acm.certificate_arn
+
+  frontend_target_group_arn = aws_lb_target_group.frontend.arn
+  backend_target_group_arn  = aws_lb_target_group.backend.arn
 }
 
 data "aws_caller_identity" "current" {}
@@ -165,6 +176,65 @@ data "aws_caller_identity" "current" {}
 module "alb_log_bucket" {
   source = "../../modules/s3/alb_log_bucket"
 
-  bucket_name = "cruddur-alb-access-log"
+  bucket_name = "cruddur-alb-access-log-prod"
   alb_account_id = data.aws_caller_identity.current.account_id
+}
+
+
+module "ecs-cluster" {
+  source = "../../modules/ecs/cluster"
+  cluster_name   = "cruddur-prod"
+}
+
+module "ecs-namespace" {
+  source = "../../modules/ecs/namespace"
+  name   = "cruddur.local"
+  vpc_id = module.vpc.vpc_id
+}
+
+module "iam_ecs" {
+  source = "../../modules/iam/ecs"
+}
+
+module "ecs-task_backend" {
+  source = "../../modules/ecs/task"
+
+  family               = "cruddur-backend"
+  cpu                  = "256"
+  memory               = "512"
+  execution_role_arn   = module.iam.execution_role_arn
+  task_role_arn        = module.iam.execution_role_arn
+
+  container_definitions = [
+    {
+      name  = "backend"
+      image = var.backend_image
+      portMappings = [{
+        containerPort = 4567
+      }]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = "/ecs/backend"
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
+    }
+  ]
+}
+
+module "ecs-service_backend" {
+  source = "../../modules/ecs/service"
+
+  name                   = "backend"
+  cluster_id             = module.cluster.id
+  task_definition_arn    = module.task_backend.arn
+  desired_count          = 2
+  subnets                = var.private_subnets
+  security_groups        = [var.backend_sg]
+  target_group_arn       = var.backend_tg
+  container_name         = "backend"
+  container_port         = 4567
+  discovery_service_arn  = var.backend_discovery_service
 }

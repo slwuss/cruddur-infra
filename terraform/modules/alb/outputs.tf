@@ -9,3 +9,7 @@ output "dns_name" {
 output "zone_id" {
   value = aws_lb.cruddur_alb.zone_id
 }
+
+output "http_listener_arn" {
+  value = aws_lb_listener.http.arn
+}
