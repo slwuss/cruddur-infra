@@ -1,3 +1,7 @@
-output "id" {
-  value = aws_ecs_cluster.cruddur-cluster.id
+output "cluster_id" {
+  value = aws_ecs_cluster.cruddur_cluster.id
+}
+
+output "cluster_name" {
+  value = aws_ecs_cluster.cruddur_cluster.name
 }

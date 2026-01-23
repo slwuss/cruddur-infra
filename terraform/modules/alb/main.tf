@@ -14,6 +14,4 @@ resource "aws_lb" "cruddur_alb" {
     bucket  = var.access_logs.bucket
     prefix  = var.access_logs.prefix
   }
-
-  tags = {}
 }

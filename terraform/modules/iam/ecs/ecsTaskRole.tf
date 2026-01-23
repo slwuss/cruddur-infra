@@ -29,7 +29,7 @@ data "aws_iam_policy_document" "task_combined" {
     data.aws_iam_policy_document.task_ssm.json,
     data.aws_iam_policy_document.task_secrets.json,
     data.aws_iam_policy_document.task_dynamodb.json,
-    data.aws_iam_policy_document.task_s3.json
+    # data.aws_iam_policy_document.task_s3.json
   ]
 }
 
@@ -45,7 +45,7 @@ data "aws_iam_policy_document" "task_ssm" {
     ]
 
     resources = [
-      "arn:aws:ssm:ap-southeast-1:123456789012:parameter/cruddur/backend/*"
+      "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:/cruddur/backend-flask/*"
     ]
   }
 }
@@ -60,7 +60,7 @@ data "aws_iam_policy_document" "task_secrets" {
     ]
 
     resources = [
-      "arn:aws:secretsmanager:ap-southeast-1:123456789012:secret:cruddur/backend/*"
+      "arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:cruddur/backend-flask/*"
     ]
   }
 }
@@ -77,24 +77,24 @@ data "aws_iam_policy_document" "task_dynamodb" {
     ]
 
     resources = [
-      "arn:aws:dynamodb:ap-southeast-1:123456789012:table/cruddur-users"
+      "arn:aws:dynamodb:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:table/cruddur-messages-prod"
     ]
   }
 }
 
-data "aws_iam_policy_document" "task_s3" {
-  statement {
-    sid    = "S3Access"
-    effect = "Allow"
+# data "aws_iam_policy_document" "task_s3" {
+#   statement {
+#     sid    = "S3Access"
+#     effect = "Allow"
 
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject"
-    ]
+#     actions = [
+#       "s3:GetObject",
+#       "s3:PutObject"
+#     ]
 
-    resources = [
-      "arn:aws:s3:::cruddur-assets/*"
-    ]
-  }
-}
+#     resources = [
+#       "arn:aws:s3:::cruddur-assets/*"
+#     ]
+#   }
+# }
 

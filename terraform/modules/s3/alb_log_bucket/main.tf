@@ -34,6 +34,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "alb_log_bucket" {
   }
 }
 
+data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket_policy" "alb_log_bucket" {
   bucket = aws_s3_bucket.alb_log_bucket.id
@@ -50,12 +51,12 @@ resource "aws_s3_bucket_policy" "alb_log_bucket" {
         }
 
         Action   = "s3:PutObject"
-        Resource = "${aws_s3_bucket.alb_log_bucket.arn}/AWSLogs/${var.alb_account_id}/*"
+        Resource = "${aws_s3_bucket.alb_log_bucket.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
 
         Condition = {
           StringEquals = {
             "s3:x-amz-acl"      = "bucket-owner-full-control"
-            "aws:SourceAccount" = var.alb_account_id
+            "aws:SourceAccount" = "${data.aws_caller_identity.current.account_id}"
           }
         }
       }

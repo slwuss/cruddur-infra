@@ -171,7 +171,7 @@ module "alb" {
   backend_target_group_arn  = aws_lb_target_group.backend.arn
 }
 
-data "aws_caller_identity" "current" {}
+
 
 module "alb_log_bucket" {
   source = "../../modules/s3/alb_log_bucket"
@@ -181,60 +181,63 @@ module "alb_log_bucket" {
 }
 
 
-module "ecs-cluster" {
+module "ecs_cluster" {
   source = "../../modules/ecs/cluster"
-  cluster_name   = "cruddur-prod"
+  name   = "cruddur-prod"
+  enable_container_insights = false
+  service_connect_namespace_arn = null
 }
 
-module "ecs-namespace" {
-  source = "../../modules/ecs/namespace"
-  name   = "cruddur.local"
-  vpc_id = module.vpc.vpc_id
+module "backend_task_definition" {
+  source = "../../modules/ecs/task-definition/backend-flask"
+
+  family = "backend-flask"
+  cpu    = "256"
+  memory = "512"
+
+  execution_role_arn = module.iam_ecs.execution_role_arn
+  task_role_arn      = module.iam_ecs.task_role_arn
+
+  ecr_repo  = "739623014075.dkr.ecr.ap-southeast-2.amazonaws.com/backend-flask"
+
+  region     = "ap-southeast-2"
+  log_group  = "cruddur"
+
+  frontend_url = "https://project-cruddur.com"
+  backend_url  = "https://api.project-cruddur.com"
+
+  cognito_user_pool_id        = "ap-southeast-2_s92MIhNaz"
+  cognito_user_pool_client_id = "10airlpdi0n03qbipu48c61j87"
+
+  ssm_aws_access_key_id     = "arn:aws:ssm:ap-southeast-2:739623014075:parameter/cruddur/backend-flask/AWS_ACCESS_KEY_ID"
+  ssm_aws_secret_access_key = "arn:aws:ssm:ap-southeast-2:739623014075:parameter/cruddur/backend-flask/AWS_SECRET_ACCESS_KEY"
+  ssm_connection_url        = "arn:aws:ssm:ap-southeast-2:739623014075:parameter/cruddur/backend-flask/CONNECTION_URL"
+  ssm_otel_headers          = "arn:aws:ssm:ap-southeast-2:739623014075:parameter/cruddur/backend-flask/OTEL_EXPORTER_OTLP_HEADERS"
+
+  enable_xray = true
+
 }
 
-module "iam_ecs" {
-  source = "../../modules/iam/ecs"
-}
 
-module "ecs-task_backend" {
-  source = "../../modules/ecs/task"
 
-  family               = "cruddur-backend"
-  cpu                  = "256"
-  memory               = "512"
-  execution_role_arn   = module.iam.execution_role_arn
-  task_role_arn        = module.iam.execution_role_arn
+module "backend_service" {
+  source = "../../modules/ecs-service"
 
-  container_definitions = [
-    {
-      name  = "backend"
-      image = var.backend_image
-      portMappings = [{
-        containerPort = 4567
-      }]
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = "/ecs/backend"
-          awslogs-region        = var.region
-          awslogs-stream-prefix = "ecs"
-        }
-      }
-    }
-  ]
-}
+  name            = "backend-flask"
+  cluster_arn     = module.ecs_cluster.cluster_id
+  task_definition = module.backend_task.arn
 
-module "ecs-service_backend" {
-  source = "../../modules/ecs/service"
+  desired_count = 0
 
-  name                   = "backend"
-  cluster_id             = module.cluster.id
-  task_definition_arn    = module.task_backend.arn
-  desired_count          = 2
-  subnets                = var.private_subnets
-  security_groups        = [var.backend_sg]
-  target_group_arn       = var.backend_tg
-  container_name         = "backend"
-  container_port         = 4567
-  discovery_service_arn  = var.backend_discovery_service
+  target_group_arn = aws_lb_target_group.backend.arn
+  container_name   = "backend-flask"
+  container_port   = 4567
+
+  subnet_ids         = var.public_subnet_ids
+  security_group_ids = [aws_security_group.backend.id]
+
+  service_connect = {
+    namespace = "cruddur"
+    dns_name  = "backend-flask.cruddur"
+  }
 }
