@@ -206,8 +206,8 @@ module "backend_task_definition" {
   frontend_url = "https://project-cruddur.com"
   backend_url  = "https://api.project-cruddur.com"
 
-  cognito_user_pool_id        = "ap-southeast-2_s92MIhNaz"
-  cognito_user_pool_client_id = "10airlpdi0n03qbipu48c61j87"
+  cognito_user_pool_id        = module.cognito_user_pool.cognito_user_pool_id
+  cognito_user_pool_client_id = module.cognito_user_pool.cognito_user_pool_client_id
 
   ssm_aws_access_key_id     = "arn:aws:ssm:ap-southeast-2:739623014075:parameter/cruddur/backend-flask/AWS_ACCESS_KEY_ID"
   ssm_aws_secret_access_key = "arn:aws:ssm:ap-southeast-2:739623014075:parameter/cruddur/backend-flask/AWS_SECRET_ACCESS_KEY"
@@ -221,11 +221,11 @@ module "backend_task_definition" {
 
 
 module "backend_service" {
-  source = "../../modules/ecs-service"
+  source = "../../modules/ecs/service/backend-flask"
 
   name            = "backend-flask"
   cluster_arn     = module.ecs_cluster.cluster_id
-  task_definition = module.backend_task.arn
+  task_definition = module.backend_task_definition.arn
 
   desired_count = 0
 
@@ -233,11 +233,25 @@ module "backend_service" {
   container_name   = "backend-flask"
   container_port   = 4567
 
-  subnet_ids         = var.public_subnet_ids
-  security_group_ids = [aws_security_group.backend.id]
+  subnet_ids         = module.vpc.public_subnet_ids
+  security_group_ids = module.security_groups.be_sg_id
 
   service_connect = {
     namespace = "cruddur"
     dns_name  = "backend-flask.cruddur"
+  }
+}
+
+
+module "frontend_tg" {
+  source = "../modules/ecs/lb-tg/frontend-react-js"
+
+  name   = "frontend-react-js"
+  port   = 3000
+  vpc_id = "vpc-03831627bdad79cd5"
+
+  tags = {
+    Service = "frontend"
+    App     = "react"
   }
 }
