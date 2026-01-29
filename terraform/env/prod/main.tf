@@ -25,7 +25,7 @@ module "vpc" {
 module "messages_table" {
   source = "../../modules/dynamodb"
 
-  name         = "cruddur-messages-prod"
+  name         = "cruddur-messages-${var.environment}"
   billing_mode = "PROVISIONED"
 
   hash_key  = "pk"
@@ -47,7 +47,7 @@ module "cognito_user_pool" {
   source = "../../modules/cognito-user-pool"
 
   name                  = "User pool - Cruddur Prod"
-  domain                = "cruddur-prod-auth"
+  domain                = "cruddur-${var.environment}-auth"
   deletion_protection   = "INACTIVE"
   mfa_configuration     = "OFF"
 
@@ -72,7 +72,7 @@ module "lambda_user_writer" {
   handler = "lambda_function.lambda_handler"
   runtime = "python3.12"
 
-  s3_bucket = "cruddur-lambda-artifacts-prod"
+  s3_bucket = "cruddur-lambda-artifacts-${var.environment}"
   s3_key    = "user-writer/v1.0.0.zip"
   
   timeout     = 60
@@ -101,7 +101,7 @@ module "security_groups" {
 module "postgres" {
   source = "../../modules/postgres"
 
-  identifier            = "cruddur-db-instance-prod"
+  identifier            = "cruddur-db-instance-${var.environment}"
   engine_version        = "17.6"
   instance_class        = "db.t4g.micro"
   allocated_storage     = 20
@@ -163,7 +163,7 @@ module "route53" {
 module "alb" {
   source = "../../modules/alb"
 
-  name            = "cruddur-alb-prod"
+  name            = "cruddur-alb-${var.environment}"
   vpc_id          = module.vpc.vpc_id
   subnets         = module.vpc.public_subnet_ids
   security_groups = [module.security_groups.alb_sg_id]
@@ -185,13 +185,13 @@ module "alb" {
 module "alb_log_bucket" {
   source = "../../modules/s3/alb_log_bucket"
 
-  bucket_name = "cruddur-alb-access-log-prod"
+  bucket_name = "cruddur-alb-access-log-${var.environment}"
 }
 
 
 module "ecs_cluster" {
   source = "../../modules/ecs/cluster"
-  name   = "cruddur-prod"
+  name   = "cruddur-${var.environment}"
   enable_container_insights = false
   service_connect_namespace_arn = null
 }
@@ -249,7 +249,7 @@ module "backend_service" {
 module "backend_tg" {
   source = "../../modules/ecs/lb-tg/backend-flask"
 
-  name              = "cruddur-prod-backend-flask-tg"
+  name              = "cruddur-${var.environment}-backend-flask-tg"
   port              = 4567
   vpc_id            = module.vpc.vpc_id
   health_check_path = "/api/health-check"
@@ -258,7 +258,7 @@ module "backend_tg" {
 module "log_group_backend" {
   source = "../../modules/loggroup/ecs-backend.tf"
 
-  log_group_name = "/ecs/cruddur-backend-prod"
+  log_group_name = "/ecs/cruddur-backend-${var.environment}"
   retention_in_days = 14
 }
 
@@ -303,14 +303,14 @@ module "frontend_service" {
 module "log_group_frontend" {
   source = "../../modules/loggroup/ecs-frontend.tf"
 
-  log_group_name = "/ecs/cruddur-frontend-prod"
+  log_group_name = "/ecs/cruddur-frontend-${var.environment}"
   retention_in_days = 14
 }
 
 module "frontend_tg" {
   source = "../../modules/ecs/lb-tg/frontend-react-js"
 
-  name   = "cruddur-prod-frontend-react-tg"
+  name   = "cruddur-${var.environment}-frontend-react-tg"
   port   = 3000
   vpc_id = module.vpc.vpc_id
   health_check_path = "/"
