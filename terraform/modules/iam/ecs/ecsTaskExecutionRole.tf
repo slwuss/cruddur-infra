@@ -26,13 +26,41 @@ resource "aws_iam_role_policy" "ecs_exec" {
       {
         Effect = "Allow"
         Action = [
+          "ssm:DescribeSessions",
+          "ssm:GetConnectionStatus",
+          "ssm:StartSession",
           "ssmmessages:CreateControlChannel",
           "ssmmessages:CreateDataChannel",
           "ssmmessages:OpenControlChannel",
           "ssmmessages:OpenDataChannel"
         ]
         Resource = "*"
-      }
+      },
+      {
+      "Sid": "SSMParameterStore",
+      "Effect": "Allow",
+      "Action": [
+        "ssm:GetParameter",
+        "ssm:GetParameters",
+        "ssm:GetParametersByPath"
+      ],
+      "Resource": "arn:aws:ssm:ap-southeast-2:739623014075:parameter/cruddur/backend-flask/*"
+     },
+    {
+      "Sid": "KMSDecrypt",
+      "Effect": "Allow",
+      "Action": "kms:Decrypt",
+      "Resource": "*"
+    },
+    {
+      "Sid": "CloudWatchLogs",
+      "Effect": "Allow",
+      "Action": [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ],
+      "Resource": "*"
+    }
     ]
   })
 }

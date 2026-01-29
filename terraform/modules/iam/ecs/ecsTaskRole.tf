@@ -82,6 +82,9 @@ data "aws_iam_policy_document" "task_dynamodb" {
   }
 }
 
+data "aws_region" "current" {}
+data "aws_caller_identity" "current" {}
+
 # data "aws_iam_policy_document" "task_s3" {
 #   statement {
 #     sid    = "S3Access"

@@ -52,6 +52,15 @@ module "cognito_user_pool" {
   mfa_configuration     = "OFF"
 
   post_confirmation_arn = module.lambda_user_writer.lambda_arn
+
+  aws_cognito_user_pool_client_name = "crudder"
+
+
+  explicit_auth_flows = [
+    "ALLOW_REFRESH_TOKEN_AUTH",
+    "ALLOW_USER_AUTH",
+    "ALLOW_USER_SRP_AUTH",
+  ]
 }
 
 module "lambda_user_writer" {
@@ -114,8 +123,8 @@ module "postgres" {
 
 module "iam_ecs" {
   source = "../../modules/iam/ecs"
-  execution_role_name = "CruddurTaskExecutionRole"
-  task_role_name = "CruddurTaskRole"
+  execution_role_name = "CruddurTaskExecutionRoleProd"
+  task_role_name = "CruddurTaskRoleProd"
 }
 
 module "iam_lambda_user_writer" {
@@ -167,8 +176,8 @@ module "alb" {
 
   certificate_arn = module.acm.certificate_arn
 
-  frontend_target_group_arn = aws_lb_target_group.frontend.arn
-  backend_target_group_arn  = aws_lb_target_group.backend.arn
+  frontend_target_group_arn = module.frontend_tg.arn
+  backend_target_group_arn  = module.backend_tg.arn
 }
 
 
@@ -177,7 +186,6 @@ module "alb_log_bucket" {
   source = "../../modules/s3/alb_log_bucket"
 
   bucket_name = "cruddur-alb-access-log-prod"
-  alb_account_id = data.aws_caller_identity.current.account_id
 }
 
 
@@ -201,7 +209,7 @@ module "backend_task_definition" {
   ecr_repo  = "739623014075.dkr.ecr.ap-southeast-2.amazonaws.com/backend-flask"
 
   region     = "ap-southeast-2"
-  log_group  = "cruddur"
+  log_group  = module.log_group_backend.log_group_name
 
   frontend_url = "https://project-cruddur.com"
   backend_url  = "https://api.project-cruddur.com"
@@ -227,31 +235,84 @@ module "backend_service" {
   cluster_arn     = module.ecs_cluster.cluster_id
   task_definition = module.backend_task_definition.arn
 
-  desired_count = 0
+  desired_count = 1
 
-  target_group_arn = aws_lb_target_group.backend.arn
+  target_group_arn = module.backend_tg.arn
   container_name   = "backend-flask"
   container_port   = 4567
 
   subnet_ids         = module.vpc.public_subnet_ids
-  security_group_ids = module.security_groups.be_sg_id
+  security_group_ids = [module.security_groups.ecs_be_service_sg_id]
 
-  service_connect = {
-    namespace = "cruddur"
-    dns_name  = "backend-flask.cruddur"
-  }
+}
+
+module "backend_tg" {
+  source = "../../modules/ecs/lb-tg/backend-flask"
+
+  name              = "cruddur-prod-backend-flask-tg"
+  port              = 4567
+  vpc_id            = module.vpc.vpc_id
+  health_check_path = "/api/health-check"
+}
+
+module "log_group_backend" {
+  source = "../../modules/loggroup/ecs-backend.tf"
+
+  log_group_name = "/ecs/cruddur-backend-prod"
+  retention_in_days = 14
 }
 
 
+module "frontend_task_definition" {
+  source = "../../modules/ecs/task-definition/frontend-react-js"
+
+  family = "frontend-react-js"
+  cpu    = "256"
+  memory = "512"
+
+  execution_role_arn = module.iam_ecs.execution_role_arn
+  task_role_arn      = module.iam_ecs.task_role_arn
+
+  ecr_repo  = "739623014075.dkr.ecr.ap-southeast-2.amazonaws.com/frontend-react-js"
+
+  region     = "ap-southeast-2"
+  log_group  = module.log_group_frontend.log_group_name
+
+  enable_xray = true
+}
+
+module "frontend_service" {
+  source = "../../modules/ecs/service/frontend-react-js"
+
+  name            = "frontend-react-js"
+  cluster_arn     = module.ecs_cluster.cluster_id
+  task_definition = module.frontend_task_definition.arn
+
+  subnets = module.vpc.public_subnet_ids
+  security_groups = [module.security_groups.ecs_fe_service_sg_id]
+
+  target_group_arn = module.frontend_tg.arn
+  container_name   = "frontend-react-js"
+  container_port   = 3000
+
+  desired_count   = 1
+
+}
+
+
+module "log_group_frontend" {
+  source = "../../modules/loggroup/ecs-frontend.tf"
+
+  log_group_name = "/ecs/cruddur-frontend-prod"
+  retention_in_days = 14
+}
+
 module "frontend_tg" {
-  source = "../modules/ecs/lb-tg/frontend-react-js"
+  source = "../../modules/ecs/lb-tg/frontend-react-js"
 
-  name   = "frontend-react-js"
+  name   = "cruddur-prod-frontend-react-tg"
   port   = 3000
-  vpc_id = "vpc-03831627bdad79cd5"
+  vpc_id = module.vpc.vpc_id
+  health_check_path = "/"
 
-  tags = {
-    Service = "frontend"
-    App     = "react"
-  }
 }

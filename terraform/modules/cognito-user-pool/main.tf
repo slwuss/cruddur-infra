@@ -76,3 +76,12 @@ resource "aws_cognito_user_pool_domain" "this" {
   domain       = var.domain
   user_pool_id = aws_cognito_user_pool.this.id
 }
+
+resource "aws_cognito_user_pool_client" "this" {
+  name         = var.aws_cognito_user_pool_client_name
+  user_pool_id = aws_cognito_user_pool.this.id
+
+  explicit_auth_flows = var.explicit_auth_flows
+
+  prevent_user_existence_errors = "ENABLED"
+}

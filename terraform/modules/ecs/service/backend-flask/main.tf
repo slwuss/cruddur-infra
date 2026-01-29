@@ -32,29 +32,6 @@ resource "aws_ecs_service" "this" {
     security_groups  = var.security_group_ids
   }
 
-  dynamic "service_connect_configuration" {
-    for_each = var.service_connect == null ? [] : [var.service_connect]
-
-    content {
-      enabled   = true
-      namespace = service_connect_configuration.value.namespace
-
-      service {
-        discovery_name = var.name
-        port_name      = var.container_name
-
-        client_alias {
-          dns_name = service_connect_configuration.value.dns_name
-          port     = var.container_port
-        }
-      }
-    }
-  }
-
-  lifecycle {
-    ignore_changes = [task_definition]
-  }
-
 
 }
 

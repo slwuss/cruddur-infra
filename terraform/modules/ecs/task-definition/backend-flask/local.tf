@@ -76,7 +76,7 @@ locals {
     }
   }
 
-  container_definitions_backend_flask = concat(
+  container_definitions_backend = concat(
     [local.backend_container],
     var.enable_xray ? [local.xray_container] : []
   )
