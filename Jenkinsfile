@@ -1,10 +1,10 @@
 pipeline {
     agent any
+
     stages {
-        stage('Clone only') {
+        stage('Test') {
             steps {
-                git url: 'git@github.com:ORG/REPO.git',
-                    credentialsId: 'github-ssh'
+                echo 'Hello Jenkins'
             }
         }
     }
