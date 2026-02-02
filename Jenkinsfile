@@ -1,11 +1,19 @@
 pipeline {
     agent any
-
+    triggers {
+        pollSCM('H/5 * * * *')
+    }
     stages {
-        stage('Test') {
+        stage('Checkout') {
             steps {
-                echo 'Hello Jenkins'
+                checkout scm
             }
         }
     }
+        stage('Build') {
+            steps {
+                echo 'Build started...'
+                echo "Current branch: ${env.BRANCH_NAME}"
+            }
+        }    
 }
