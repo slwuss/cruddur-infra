@@ -9,11 +9,12 @@ pipeline {
                 checkout scm
             }
         }
-    }
+    
         stage('Build') {
             steps {
                 echo 'Build started...'
                 echo "Current branch: ${env.BRANCH_NAME}"
             }
-        }    
+        }
+    }        
 }
