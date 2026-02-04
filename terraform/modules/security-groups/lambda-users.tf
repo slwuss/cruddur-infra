@@ -26,7 +26,7 @@ resource "aws_security_group" "lambda_user" {
 
   lifecycle {
     prevent_destroy = true
-    ignore_changes  = [
+    ignore_changes = [
       ingress,
       egress,
       description
@@ -44,10 +44,10 @@ resource "aws_security_group_rule" "lambda_to_rds" {
 }
 
 resource "aws_security_group_rule" "lambda_to_secrets" {
-  type              = "egress"
-  from_port         = 443
-  to_port           = 443
-  protocol          = "tcp"
-  security_group_id = aws_security_group.lambda_user.id
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.lambda_user.id
   source_security_group_id = aws_security_group.secrets_endpoint_sg.id
 }

@@ -12,12 +12,12 @@ resource "aws_dynamodb_table" "cruddur-messages-prod" {
   stream_view_type = var.stream_view_type
 
   attribute {
-    name = var.hash_key   
+    name = var.hash_key
     type = "S"
   }
 
   attribute {
-    name = var.range_key  
+    name = var.range_key
     type = "S"
   }
 
@@ -36,7 +36,7 @@ resource "aws_dynamodb_table" "cruddur-messages-prod" {
     write_capacity = var.gsi_write_capacity
   }
 
-#   lifecycle {
-#     prevent_destroy = true
-#   }
+  #   lifecycle {
+  #     prevent_destroy = true
+  #   }
 }

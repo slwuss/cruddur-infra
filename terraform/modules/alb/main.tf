@@ -4,7 +4,7 @@ resource "aws_lb" "cruddur_alb" {
   internal           = false
   ip_address_type    = "ipv4"
 
-  subnets        = var.subnets
+  subnets         = var.subnets
   security_groups = var.security_groups
 
   desync_mitigation_mode = "defensive"

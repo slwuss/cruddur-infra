@@ -28,9 +28,9 @@ variable "certificate_arn" {
 }
 
 variable "frontend_target_group_arn" {
-  type        = string
+  type = string
 }
 
 variable "backend_target_group_arn" {
-  type        = string
+  type = string
 }

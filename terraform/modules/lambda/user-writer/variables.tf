@@ -35,11 +35,11 @@ variable "environment_variables" {
 }
 
 variable "s3_bucket" {
-  type = string
+  type        = string
   description = "S3 bucket containing lambda artifact"
 }
 
 variable "s3_key" {
-  type = string
+  type        = string
   description = "S3 key (path) to lambda zip file"
 }

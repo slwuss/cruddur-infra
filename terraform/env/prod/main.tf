@@ -1,8 +1,8 @@
 module "vpc" {
   source = "../../modules/vpc"
 
-  name            = var.project_name
-  cidr_block      = "10.10.0.0/16"
+  name       = var.project_name
+  cidr_block = "10.10.0.0/16"
 
   azs = [
     "ap-southeast-2a",
@@ -18,7 +18,7 @@ module "vpc" {
 
   security_group_ids = [
     module.security_groups.secrets_endpoint_sg_id
-    ]
+  ]
 
 }
 
@@ -46,10 +46,10 @@ module "messages_table" {
 module "cognito_user_pool" {
   source = "../../modules/cognito-user-pool"
 
-  name                  = "User pool - Cruddur Prod"
-  domain                = "cruddur-${var.environment}-auth"
-  deletion_protection   = "INACTIVE"
-  mfa_configuration     = "OFF"
+  name                = "User pool - Cruddur Prod"
+  domain              = "cruddur-${var.environment}-auth"
+  deletion_protection = "INACTIVE"
+  mfa_configuration   = "OFF"
 
   post_confirmation_arn = module.lambda_user_writer.lambda_arn
 
@@ -74,7 +74,7 @@ module "lambda_user_writer" {
 
   s3_bucket = "cruddur-lambda-artifacts-${var.environment}"
   s3_key    = "user-writer/v1.0.0.zip"
-  
+
   timeout     = 60
   memory_size = 128
 
@@ -101,16 +101,16 @@ module "security_groups" {
 module "postgres" {
   source = "../../modules/postgres"
 
-  identifier            = "cruddur-db-instance-${var.environment}"
-  engine_version        = "17.6"
-  instance_class        = "db.t4g.micro"
-  allocated_storage     = 20
-  db_name               = "cruddur"
+  identifier        = "cruddur-db-instance-${var.environment}"
+  engine_version    = "17.6"
+  instance_class    = "db.t4g.micro"
+  allocated_storage = 20
+  db_name           = "cruddur"
 
-  publicly_accessible   = true
+  publicly_accessible = true
   vpc_security_group_ids = [
     module.security_groups.rds_sg_id
-    ]
+  ]
 
   subnet_ids = module.vpc.public_subnet_ids
 
@@ -122,19 +122,19 @@ module "postgres" {
 }
 
 module "iam_ecs" {
-  source = "../../modules/iam/ecs"
+  source              = "../../modules/iam/ecs"
   execution_role_name = "CruddurTaskExecutionRoleProd"
-  task_role_name = "CruddurTaskRoleProd"
+  task_role_name      = "CruddurTaskRoleProd"
 }
 
 module "iam_lambda_user_writer" {
   source = "../../modules/iam/lambda-user-writer"
 
-  role_name = "cruddur-user-writer-lambda-role"
+  role_name   = "cruddur-user-writer-lambda-role"
   lambda_name = "cruddur-user-writer"
-  region = "ap-southeast-2"
+  region      = "ap-southeast-2"
 
-  postgres_secret_arn  = module.postgres.master_user_secret_arn
+  postgres_secret_arn = module.postgres.master_user_secret_arn
 
 }
 
@@ -156,8 +156,8 @@ module "route53" {
   name = "project-cruddur.com"
 
   alb_dns_name = module.alb.dns_name
-  alb_zone_id = module.alb.zone_id
-  
+  alb_zone_id  = module.alb.zone_id
+
 }
 
 module "alb" {
@@ -190,9 +190,9 @@ module "alb_log_bucket" {
 
 
 module "ecs_cluster" {
-  source = "../../modules/ecs/cluster"
-  name   = "cruddur-${var.environment}"
-  enable_container_insights = false
+  source                        = "../../modules/ecs/cluster"
+  name                          = "cruddur-${var.environment}"
+  enable_container_insights     = false
   service_connect_namespace_arn = null
 }
 
@@ -206,10 +206,10 @@ module "backend_task_definition" {
   execution_role_arn = module.iam_ecs.execution_role_arn
   task_role_arn      = module.iam_ecs.task_role_arn
 
-  ecr_repo  = "739623014075.dkr.ecr.ap-southeast-2.amazonaws.com/backend-flask"
+  ecr_repo = "739623014075.dkr.ecr.ap-southeast-2.amazonaws.com/backend-flask"
 
-  region     = "ap-southeast-2"
-  log_group  = module.log_group_backend.log_group_name
+  region    = "ap-southeast-2"
+  log_group = module.log_group_backend.log_group_name
 
   frontend_url = "https://project-cruddur.com"
   backend_url  = "https://api.project-cruddur.com"
@@ -258,7 +258,7 @@ module "backend_tg" {
 module "log_group_backend" {
   source = "../../modules/loggroup/ecs-backend.tf"
 
-  log_group_name = "/ecs/cruddur-backend-${var.environment}"
+  log_group_name    = "/ecs/cruddur-backend-${var.environment}"
   retention_in_days = 14
 }
 
@@ -273,10 +273,10 @@ module "frontend_task_definition" {
   execution_role_arn = module.iam_ecs.execution_role_arn
   task_role_arn      = module.iam_ecs.task_role_arn
 
-  ecr_repo  = "739623014075.dkr.ecr.ap-southeast-2.amazonaws.com/frontend-react-js"
+  ecr_repo = "739623014075.dkr.ecr.ap-southeast-2.amazonaws.com/frontend-react-js"
 
-  region     = "ap-southeast-2"
-  log_group  = module.log_group_frontend.log_group_name
+  region    = "ap-southeast-2"
+  log_group = module.log_group_frontend.log_group_name
 
   enable_xray = true
 }
@@ -288,14 +288,14 @@ module "frontend_service" {
   cluster_arn     = module.ecs_cluster.cluster_id
   task_definition = module.frontend_task_definition.arn
 
-  subnets = module.vpc.public_subnet_ids
+  subnets         = module.vpc.public_subnet_ids
   security_groups = [module.security_groups.ecs_fe_service_sg_id]
 
   target_group_arn = module.frontend_tg.arn
   container_name   = "frontend-react-js"
   container_port   = 3000
 
-  desired_count   = 1
+  desired_count = 1
 
 }
 
@@ -303,16 +303,16 @@ module "frontend_service" {
 module "log_group_frontend" {
   source = "../../modules/loggroup/ecs-frontend.tf"
 
-  log_group_name = "/ecs/cruddur-frontend-${var.environment}"
+  log_group_name    = "/ecs/cruddur-frontend-${var.environment}"
   retention_in_days = 14
 }
 
 module "frontend_tg" {
   source = "../../modules/ecs/lb-tg/frontend-react-js"
 
-  name   = "cruddur-${var.environment}-frontend-react-tg"
-  port   = 3000
-  vpc_id = module.vpc.vpc_id
+  name              = "cruddur-${var.environment}-frontend-react-tg"
+  port              = 3000
+  vpc_id            = module.vpc.vpc_id
   health_check_path = "/"
 
 }

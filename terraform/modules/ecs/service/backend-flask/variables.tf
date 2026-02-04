@@ -53,7 +53,7 @@ variable "security_group_ids" {
 variable "service_connect" {
   type = object({
     namespace = string
-    dns_name = string
+    dns_name  = string
   })
   default = null
 }

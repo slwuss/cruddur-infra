@@ -20,7 +20,7 @@ resource "aws_iam_role_policy_attachment" "ecs_task_xray" {
 
 resource "aws_iam_role_policy" "ecs_task_service" {
   name   = "CruddurTaskRole-Service-Policy"
-  role  = aws_iam_role.ecsTaskRole.id
+  role   = aws_iam_role.ecsTaskRole.id
   policy = data.aws_iam_policy_document.task_combined.json
 }
 

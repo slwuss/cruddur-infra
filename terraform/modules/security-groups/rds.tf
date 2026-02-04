@@ -16,7 +16,7 @@ resource "aws_security_group_rule" "rds_from_be" {
 
 resource "aws_security_group_rule" "rds_from_lambda_user" {
   type                     = "ingress"
-  description              = "Allow Cognito Lambda to access RDS"    
+  description              = "Allow Cognito Lambda to access RDS"
   from_port                = 5432
   to_port                  = 5432
   protocol                 = "tcp"

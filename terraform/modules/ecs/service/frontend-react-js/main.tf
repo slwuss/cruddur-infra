@@ -8,8 +8,8 @@ resource "aws_ecs_service" "this" {
   enable_execute_command = true
 
   network_configuration {
-    subnets         = var.subnets
-    security_groups = var.security_groups
+    subnets          = var.subnets
+    security_groups  = var.security_groups
     assign_public_ip = var.assign_public_ip
   }
 

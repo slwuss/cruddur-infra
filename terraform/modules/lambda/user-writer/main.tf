@@ -4,7 +4,7 @@ resource "aws_lambda_function" "lambda_user_writer" {
   handler       = var.handler
   runtime       = var.runtime
 
-  timeout      = var.timeout
+  timeout     = var.timeout
   memory_size = var.memory_size
 
   package_type = "Zip"
