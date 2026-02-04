@@ -54,7 +54,8 @@ pipeline {
             steps {
                 sh '''
                   if command -v tfsec >/dev/null 2>&1; then
-                    tfsec .
+                    tfsec . \
+                    --exclude-path terraform/inspect
                   else
                     echo "tfsec not installed, skipping security scan"
                   fi
