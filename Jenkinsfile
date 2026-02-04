@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'jenkins/inbound-agent-terraform:1.14'
+        }
+    }
 
     environment {
         TF_IN_AUTOMATION = "true"
