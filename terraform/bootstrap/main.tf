@@ -11,6 +11,7 @@ provider "aws" {
   region = "ap-southeast-2"
 }
 
+# tfsec:ignore:aws-s3-enable-bucket-logging 
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "cruddur-terraform-state"
 
@@ -33,7 +34,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.terraform_state.arn
     }
   }
 }
@@ -46,3 +48,15 @@ resource "aws_s3_bucket_public_access_block" "this" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
+resource "aws_kms_key" "terraform_state" {
+  description             = "KMS key for Terraform state"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+}
+
+resource "aws_kms_alias" "terraform_state" {
+  name          = "alias/terraform-state"
+  target_key_id = aws_kms_key.terraform_state.key_id
+}
+
