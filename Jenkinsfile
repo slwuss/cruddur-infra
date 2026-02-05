@@ -71,7 +71,7 @@ pipeline {
                 ]) {
                     sh '''
                       terraform -chdir=terraform/env/prod plan -var-file=$(pwd)/terraform/env/prod/terraform.tfvars -no-color -out=tfplan
-                      terraform -chdir=terraform/env/prod show -var-file=$(pwd)/terraform/env/prod/terraform.tfvars -no-color tfplan > tfplan.txt
+                      terraform -chdir=terraform/env/prod show -no-color tfplan > tfplan.txt
                     '''
                 }
             }
