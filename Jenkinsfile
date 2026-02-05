@@ -68,13 +68,14 @@ pipeline {
                 withCredentials([
                     [$class: 'AmazonWebServicesCredentialsBinding',
                      credentialsId: 'aws-prod']
-            ]) {
-                sh '''
-                  terraform -chdir=terraform/env/prod init -input=false
-                '''
+                ]) {
+                    sh '''
+                      terraform -chdir=terraform/env/prod init -input=false
+                    '''
+                }
             }
         }
-    }
+    
 
         stage('Terraform Plan') {
             steps {
