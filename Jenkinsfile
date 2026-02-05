@@ -70,8 +70,8 @@ pipeline {
                      credentialsId: 'aws-prod']
                 ]) {
                     sh '''
-                      terraform -chdir=terraform/env/prod plan -no-color -out=tfplan
-                      terraform -chdir=terraform/env/prod show -no-color tfplan > tfplan.txt
+                      terraform -chdir=terraform/env/prod plan -var-file=terraform.tfvars -no-color -out=tfplan
+                      terraform -chdir=terraform/env/prod show -var-file=terraform.tfvars -no-color tfplan > tfplan.txt
                     '''
                 }
             }
