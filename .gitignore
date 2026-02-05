@@ -9,7 +9,7 @@
 crash.log
 
 # Terraform variables (อาจมี secret)
-*.tfvars
+
 *.tfvars.json
 
 
