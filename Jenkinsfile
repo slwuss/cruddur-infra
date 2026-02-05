@@ -24,20 +24,6 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
-            steps {
-                withCredentials([
-                    [$class: 'AmazonWebServicesCredentialsBinding',
-                     credentialsId: 'aws-prod']
-                ]) {
-                    sh '''
-                      terraform --version
-                      terraform init -input=false -no-color
-                    '''
-                }
-            }
-        }
-
         stage('Terraform Format') {
             steps {
                 sh 'terraform fmt -check -recursive'
