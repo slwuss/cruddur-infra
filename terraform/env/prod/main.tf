@@ -89,7 +89,8 @@ module "lambda_user_writer" {
     DB_NAME             = "cruddur"
     POSTGRES_SECRET_ARN = module.postgres.master_user_secret_arn
   }
-
+  cognito_arn = module.cognito_user_pool.cognito_user_pool_arn
+  cognito_id  = module.cognito_user_pool.cognito_user_pool_id
 }
 
 module "security_groups" {
