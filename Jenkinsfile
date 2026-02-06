@@ -58,7 +58,7 @@ pipeline {
 
         stage('Terraform Validate') {
             steps {
-                sh 'terraform validate'
+                sh 'terraform -chdir=terraform/env/prod validate'
             }
         }
     
