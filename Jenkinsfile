@@ -82,7 +82,11 @@ pipeline {
             }
             steps {
                 withCredentials([
-                    string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')
+                    usernamePassword(
+                        credentialsId: 'github-token',
+                        usernameVariable: 'GITHUB_USER',
+                        passwordVariable: 'GITHUB_TOKEN'
+                    )
                 ]) {
                     sh '''
                         set -e
