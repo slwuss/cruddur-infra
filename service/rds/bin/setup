@@ -1,0 +1,14 @@
+#! /usr/bin/bash
+set -e # stop if it fails at any point
+
+CYAN='\033[1;36m'
+NO_COLOR='\033[0m'
+LABEL="db-setup"
+printf "${CYAN}==== ${LABEL}${NO_COLOR}\n"
+
+BIN_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$BIN_PATH/drop"
+source "$BIN_PATH/create"
+source "$BIN_PATH/schema-load"
+source "$BIN_PATH/seed"

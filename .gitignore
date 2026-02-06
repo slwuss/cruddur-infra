@@ -1,0 +1,28 @@
+# =========================
+# Terraform
+# =========================
+.terraform/
+.terraform.lock.hcl
+
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Terraform variables (อาจมี secret)
+
+*.tfvars.json
+
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Node / Build (ถ้ามี)
+# =========================
+node_modules/
+dist/
+build/
+
+.venv/

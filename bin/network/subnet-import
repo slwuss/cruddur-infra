@@ -1,0 +1,4 @@
+#! /usr/bin/bash
+
+aws ec2 describe-subnets \
+  --filters "Name=vpc-id,Values=vpc-03831627bdad79cd5"
