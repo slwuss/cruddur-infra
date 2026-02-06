@@ -93,7 +93,7 @@ pipeline {
 
                         echo "Commenting on PR #$CHANGE_ID"
 
-                        PLAN_CONTENT=$(sed -e 's/`/\\`/g' terraform/env/prod/tfplan.txt)
+                        PLAN_CONTENT=$(sed -e 's/`/\\`/g' tfplan.txt)
 
                         COMMENT_BODY=$(printf "%s\n" \
         "### 🧱 Terraform Plan Result" \
