@@ -10,7 +10,7 @@ Automated, Production-Ready Infrastructure as Code (IaC) deployment for the Crud
 
 ## :triangular_ruler: Architecture
 
-![Architecture Diagram](https://github.com/user-attachments/assets/243c441d-c7d8-48b4-9d61-22ad180796df)
+![Architecture Diagram](./docs/architecture.svg)
 
 - **Cloud Provider**: AWS (`VPC`, `ECS Fargate`, `RDS`, `DynamoDB`, `ALB/NLB`, `Cognito`, `Lambda`)
 - **Containerization:** Docker, ECS Task Definitions (frontend, backend, observability services)
