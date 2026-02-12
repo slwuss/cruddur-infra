@@ -43,3 +43,13 @@ variable "s3_key" {
   type        = string
   description = "S3 key (path) to lambda zip file"
 }
+
+variable "cognito_arn" {
+  type        = string
+  description = "Cognito User Pool ARN to allow invocation permissions"
+}
+
+variable "cognito_id" {
+  type        = string
+  description = "Cognito User Pool ID to allow invocation permissions"
+}

@@ -22,3 +22,11 @@ resource "aws_lambda_function" "lambda_user_writer" {
   }
 
 }
+
+resource "aws_lambda_permission" "cognito_post_confirmation" {
+  statement_id  = "CSI_PostConfirmation_${var.cognito_id}"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.lambda_user_writer.function_name
+  principal     = "cognito-idp.amazonaws.com"
+  source_arn    = var.cognito_arn
+}
